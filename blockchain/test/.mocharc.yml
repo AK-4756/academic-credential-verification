@@ -1,0 +1,5 @@
+# blockchain/test/.mocharc.yml
+# Mocha configuration for Hardhat tests
+timeout: 60000        # 60 seconds per test (blockchain ops are slow)
+reporter: spec         # Human-readable nested output
+exit: true            # Force exit after tests complete

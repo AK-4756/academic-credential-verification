@@ -2795,10 +2795,10 @@ Impact: MEDIUM (all deployed contracts and issued certificates lost)
 Description: Hardhat's in-memory blockchain resets on every restart.
              All development test data is lost.
 Mitigation:
-├── Use: npx hardhat node --persist flag
-│   This writes chain state to disk
-├── After restart: data restored from disk
-└── If not using --persist: re-run deployment script + seed data
+├── Accept that Hardhat local node is in-memory
+│   This resets chain state on restart
+├── After restart: re-run deployment script
+└── Always run seed data script after fresh deployment
 Detection: Any Hardhat restart during development
 Resolution: Document restart procedure; make seed data script idempotent
 

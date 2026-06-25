@@ -1,0 +1,2 @@
+# Security/adversarial tests (Sprint 2)
+# Files: AccessControl.security.test.js, InputValidation.security.test.js, EdgeCases.security.test.js

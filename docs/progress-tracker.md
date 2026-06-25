@@ -21,7 +21,7 @@
 - [ ] React + Vite Project Setup
 - [ ] PostgreSQL Setup
 - [ ] Environment Variables Setup
-- [ ] Git Repository Organization
+- [x] Git Repository Organization
 
 ## Sprint 2 - Smart Contract Development
 

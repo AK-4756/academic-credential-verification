@@ -1,0 +1,55 @@
+{
+  "name": "academic-credential-verification-contracts",
+  "version": "1.0.0",
+  "description": "CertificateRegistry smart contract for the Blockchain-Based Academic Credential Verification Platform",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "compile": "hardhat compile",
+    "compile:force": "hardhat compile --force",
+    "clean": "hardhat clean",
+    "test": "hardhat test",
+    "test:unit": "hardhat test test/unit/**/*.test.js",
+    "test:integration": "hardhat test test/integration/**/*.test.js",
+    "test:security": "hardhat test test/security/**/*.test.js",
+    "test:coverage": "hardhat coverage",
+    "test:gas": "cross-env REPORT_GAS=true hardhat test",
+    "node": "hardhat node",
+    "node:reset": "hardhat node --no-deploy",
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "authorize:local": "hardhat run scripts/authorize-issuer.js --network hardhat",
+    "authorize:localhost": "hardhat run scripts/authorize-issuer.js --network localhost",
+    "authorize:sepolia": "hardhat run scripts/authorize-issuer.js --network sepolia",
+    "deauthorize:local": "hardhat run scripts/deauthorize-issuer.js --network hardhat",
+    "deauthorize:sepolia": "hardhat run scripts/deauthorize-issuer.js --network sepolia",
+    "check:local": "hardhat run scripts/check-certificate.js --network hardhat",
+    "check:sepolia": "hardhat run scripts/check-certificate.js --network sepolia",
+    "transfer:local": "hardhat run scripts/transfer-ownership.js --network hardhat",
+    "transfer:sepolia": "hardhat run scripts/transfer-ownership.js --network sepolia",
+    "verify:sepolia": "hardhat verify --network sepolia",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix",
+    "size": "hardhat size-contracts",
+    "audit": "npm audit --audit-level=high"
+  },
+  "keywords": [
+    "blockchain",
+    "credentials",
+    "verification",
+    "ethereum",
+    "solidity"
+  ],
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.0",
+    "hardhat": "^2.22.0",
+    "solhint": "^4.5.0"
+  }
+}

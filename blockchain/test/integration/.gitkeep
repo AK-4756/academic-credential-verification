@@ -1,0 +1,2 @@
+# Integration tests for end-to-end workflows (Sprint 2)
+# Files: IssuanceFlow.test.js, VerificationFlow.test.js, RevocationFlow.test.js

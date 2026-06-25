@@ -2583,7 +2583,7 @@ Impact: MEDIUM
 Risk: Hardhat in-memory node loses all state on restart during development.
 
 Mitigation:
-├── Use hardhat node --persist flag to write state to disk
+├── Accept that Hardhat local node is in-memory (state resets on restart)
 ├── Re-run deployment and authorization scripts after node restart
 └── For staging/production: use Sepolia testnet (permanent state)
 ```

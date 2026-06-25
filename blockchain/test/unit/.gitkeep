@@ -1,0 +1,2 @@
+# Unit tests for CertificateRegistry (Sprint 2)
+# Files: CertificateRegistry.access.test.js, .storage.test.js, .verification.test.js, .revocation.test.js

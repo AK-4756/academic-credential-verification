@@ -2282,7 +2282,7 @@ blockchain/
 ├── package.json
 │   Dependencies:
 │   ├── hardhat: ^2.22.x               → Development framework
-│   ├── @nomicfoundation/hardhat-toolbox: ^5.x → Ethers, chai, coverage
+│   ├── @nomicfoundation/hardhat-toolbox: ^4.x → Ethers, chai, coverage
 │   ├── @nomicfoundation/hardhat-verify: ^2.x  → Etherscan verification
 │   └── dotenv: ^16.x                  → Environment variable loading
 │
@@ -2726,7 +2726,7 @@ Chain ID:        31337
 RPC URL:         http://127.0.0.1:8545
 ETH Balance:     20 test wallets × 10,000 ETH (Hardhat default)
 Block Time:      Instant (mine on demand) or --interval 12
-Persistence:     In-memory by default; use --persist for state across restarts
+Persistence:     In-memory by default (state resets across restarts)
 Gas Price:       0 (no cost for development)
 Purpose:         Local development; automated test runs
 
