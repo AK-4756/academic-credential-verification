@@ -16,7 +16,7 @@
 
 - [x] Final Repository Structure
 - [x] Create Repository Folders
-- [ ] Hardhat Project Setup
+- [x] Hardhat Project Setup
 - [ ] FastAPI Project Setup
 - [ ] React + Vite Project Setup
 - [ ] PostgreSQL Setup

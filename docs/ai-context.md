@@ -1,8 +1,8 @@
 # Current Project Phase:
 
 - Implement Sprint 1 Foundation Setup
-- Hardhat Setup documentation completed
-- Hardhat implementation pending
+- Hardhat Setup completed
+- FastAPI Setup pending
 
 ---
 
@@ -50,9 +50,9 @@ Final Repository Structure: ✅ Completed
 
 Git Repository Organization: ✅ Completed
 
-Hardhat Project Setup: ⬜ In Progress
+Hardhat Project Setup: ✅ Completed
 
-FastAPI Project Setup: ⬜ Not Started
+FastAPI Project Setup: ⬜ In Progress
 
 React + Vite Project Setup: ⬜ Not Started
 

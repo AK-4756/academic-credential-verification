@@ -27,7 +27,7 @@ Sprint 1 - Foundation Setup
 ✅ Git Organization
 ✅ Hardhat Setup Planning
 
-⬜ Hardhat Implementation
+✅ Hardhat Implementation
 ⬜ FastAPI Setup
 ⬜ React + Vite Setup
 ⬜ PostgreSQL Setup
@@ -35,7 +35,7 @@ Sprint 1 - Foundation Setup
 
 ## Current Task
 
-Hardhat Project Setup
+FastAPI Project Setup
 
 ## Current Blockchain Folder State
 
