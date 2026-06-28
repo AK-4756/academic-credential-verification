@@ -103,11 +103,15 @@ Roles:
 
 ## Next Deliverable
 
-Run:
+FastAPI Project Setup:
 
-- cd blockchain && npm install
-- Verify: npx hardhat --version → 2.22.x
-- Verify: npx hardhat compile → "Nothing to compile"
-- Verify: npx hardhat test → 0 passing
+- Create virtual environment (backend/.venv/)
+- Generate requirements.txt + requirements-dev.txt
+- Create .env.example with all environment variables
+- Create minimal main.py with /health endpoint
+- Create core/config.py (Pydantic Settings)
+- Generate RS256 key pair for JWT
+- Verify: uvicorn main:app starts with 0 errors
+- Verify: GET /health returns 200 {"status": "ok"}
 
-Then proceed to Sprint 2 (CertificateRegistry.sol development).
+Then proceed to React + Vite Project Setup.

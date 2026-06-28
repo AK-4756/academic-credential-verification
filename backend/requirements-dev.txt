@@ -1,0 +1,20 @@
+# ============================================================================
+# Academic Credential Verification Platform — Development Dependencies
+# ============================================================================
+# Source of truth: docs/backend.md (Testing: pytest + pytest-asyncio + httpx)
+# Install: pip install -r requirements-dev.txt
+# These are ONLY for development and testing — never deployed to production.
+# ============================================================================
+
+# --- Testing ---
+pytest>=8.0.0                      # Test runner
+pytest-asyncio>=0.23.0            # Async test support for SQLAlchemy + FastAPI
+httpx>=0.27.0                      # Async HTTP client for FastAPI TestClient
+pytest-mock>=3.12.0                # Mocking framework
+
+# --- Code Coverage ---
+coverage>=7.4.0                    # Test coverage measurement
+pytest-cov>=4.1.0                 # pytest coverage plugin
+
+# --- Code Quality ---
+ruff>=0.3.0                        # Fast Python linter + formatter

@@ -1,0 +1,44 @@
+# ============================================================================
+# Academic Credential Verification Platform — Backend Dependencies
+# ============================================================================
+# Source of truth: docs/backend.md Section 27 (Folder Structure)
+# Python version: 3.11+
+# Install: pip install -r requirements.txt
+# ============================================================================
+
+# --- Web Framework ---
+fastapi>=0.110.0                    # Async web framework with auto OpenAPI docs
+uvicorn[standard]>=0.29.0          # ASGI server (standard includes watchfiles for reload)
+
+# --- Database ---
+sqlalchemy[asyncio]>=2.0.0         # Async ORM with SQLAlchemy 2.0 style
+asyncpg>=0.29.0                    # PostgreSQL async driver
+alembic>=1.13.0                    # Database migration tool
+
+# --- Validation & Settings ---
+pydantic[email]>=2.6.0             # Data validation + email-validator extra
+pydantic-settings>=2.2.0          # Environment variable management (.env loading)
+
+# --- Authentication & Security ---
+python-jose[cryptography]>=3.3.0  # JWT RS256 token creation and verification
+passlib[bcrypt]>=1.7.4            # Password hashing with bcrypt (cost factor 12)
+
+# --- File Handling ---
+python-multipart>=0.0.9           # Multipart form data (FastAPI file uploads)
+
+# --- Blockchain ---
+web3>=6.15.0                       # Ethereum interaction (contract calls, event reading)
+
+# --- QR Code ---
+qrcode[pil]>=7.4.2                # QR code generation for verification tokens
+
+# --- File Security ---
+# NOTE: On Windows, install python-magic-bin instead of python-magic
+# pip install python-magic-bin>=0.4.14
+python-magic>=0.4.27              # MIME type detection (requires libmagic on Linux/Mac)
+
+# --- Rate Limiting ---
+slowapi>=0.1.9                     # Rate limiting middleware (in-memory, no Redis for MVP)
+
+# --- Logging ---
+structlog>=24.1.0                  # Structured JSON logging

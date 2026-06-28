@@ -144,18 +144,19 @@ Final Validation: ⬜ Not Started
 
 # Current Active Task
 
-Sprint 1 – Hardhat Project Setup
+Sprint 1 – FastAPI Project Setup
 
 Goal:
 
-- Configure Hardhat 2.22.x inside the blockchain folder
-- Create blockchain development environment
-- Configure testing structure
-- Configure deployment structure
-- Configure environment variables
-- Prepare ABI synchronization workflow
+- Create backend Python environment inside the backend folder
+- Generate requirements.txt with all 15 production packages
+- Generate requirements-dev.txt with testing/linting packages
+- Create .env.example with all required environment variables
+- Create minimal main.py with /health endpoint
+- Create core/config.py with Pydantic Settings
+- Generate RS256 key pair for JWT authentication
 
-Configuration files generated. npm install pending.
+Status: In Progress
 
 ## Important Decisions Made During Development
 
@@ -196,5 +197,5 @@ PDF
 - Security Architecture completed
 - Repository Structure completed
 - Implement Sprint 1 Foundation Setup
-- Hardhat Setup documentation completed
-- Hardhat implementation pending
+- Hardhat Setup completed (verified: v2.28.6, compile, test)
+- FastAPI Setup in progress
