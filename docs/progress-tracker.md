@@ -17,10 +17,10 @@
 - [x] Final Repository Structure
 - [x] Create Repository Folders
 - [x] Hardhat Project Setup
-- [ ] FastAPI Project Setup
-- [ ] React + Vite Project Setup
-- [ ] PostgreSQL Setup
-- [ ] Environment Variables Setup
+- [x] FastAPI Project Setup
+- [x] React + Vite Project Setup
+- [x] PostgreSQL Setup
+- [x] Environment Variables Setup
 - [x] Git Repository Organization
 
 ## Sprint 2 - Smart Contract Development

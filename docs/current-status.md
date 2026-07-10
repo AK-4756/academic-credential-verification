@@ -28,14 +28,14 @@ Sprint 1 - Foundation Setup
 ✅ Hardhat Setup Planning
 
 ✅ Hardhat Implementation
-⬜ FastAPI Setup
-⬜ React + Vite Setup
-⬜ PostgreSQL Setup
-⬜ Environment Variables Setup
+✅ FastAPI Setup
+✅ React + Vite Setup
+✅ PostgreSQL Setup
+✅ Environment Variables Setup
 
 ## Current Task
 
-FastAPI Project Setup
+Sprint 1 Complete — Awaiting approval for Sprint 2
 
 ## Current Blockchain Folder State
 
@@ -103,15 +103,12 @@ Roles:
 
 ## Next Deliverable
 
-FastAPI Project Setup:
+Sprint 2 - Smart Contract Development:
 
-- Create virtual environment (backend/.venv/)
-- Generate requirements.txt + requirements-dev.txt
-- Create .env.example with all environment variables
-- Create minimal main.py with /health endpoint
-- Create core/config.py (Pydantic Settings)
-- Generate RS256 key pair for JWT
-- Verify: uvicorn main:app starts with 0 errors
-- Verify: GET /health returns 200 {"status": "ok"}
+- CertificateRegistry Contract
+- Access Control
+- Certificate Issuance
+- Verification Logic
+- Contract Testing
 
-Then proceed to React + Vite Project Setup.
+Awaiting user approval before proceeding.
