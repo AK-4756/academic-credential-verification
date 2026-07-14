@@ -316,8 +316,91 @@ contract CertificateRegistry {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    //                     WRITE FUNCTIONS (onlyAuthorizedIssuer)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// @notice Stores a new certificate hash on-chain
+    /// @dev CEI: modifier checks → duplicate check → state writes → event.
+    ///      Gas budget: ≤110,000. Duplicate UIDs are rejected (one-time write).
+    ///      The duplicate check is in the function body (not a modifier) because
+    ///      certUid must be validated by validCertUid before use as a mapping key.
+    /// @param certUid The unique certificate identifier (1–50 characters)
+    /// @param certHash The SHA-256 hash of the certificate PDF binary (bytes32)
+    function storeCertificate(
+        string calldata certUid,
+        bytes32 certHash
+    ) external onlyAuthorizedIssuer validCertUid(certUid) validCertHash(certHash) {
+        // Checks — duplicate prevention (after modifier validation)
+        if (certificates[certUid].exists) {
+            revert CertificateAlreadyExists(certUid);
+        }
+
+        // Effects — construct and store record
+        certificates[certUid] = CertificateRecord({
+            certificateHash: certHash,
+            issuingUniversity: msg.sender,
+            status: CertificateStatus.ACTIVE,
+            exists: true,
+            issuedAt: block.timestamp,
+            revokedAt: 0
+        });
+        totalCertificates += 1;
+
+        // Event
+        emit CertificateStored(
+            certUid,
+            certHash,
+            msg.sender,
+            block.timestamp,
+            totalCertificates
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     //                          VIEW FUNCTIONS (public, no gas)
     // ═══════════════════════════════════════════════════════════════════════════
+
+    /// @notice Verifies a certificate hash against the on-chain record
+    /// @dev View function — costs 0 ETH when called as eth_call.
+    ///      Uses storage reference (not memory copy) for gas efficiency.
+    ///      Decision tree: exists? → revoked? → hash match?
+    ///      Returns (false, ACTIVE) for both NOT_FOUND and TAMPERED cases;
+    ///      the backend differentiates using database context.
+    /// @param certUid The certificate UID to verify
+    /// @param submittedHash The SHA-256 hash to compare against the stored hash
+    /// @return isValid True only if the certificate is ACTIVE and hashes match
+    /// @return status The current CertificateStatus (ACTIVE or REVOKED)
+    function verifyCertificate(
+        string calldata certUid,
+        bytes32 submittedHash
+    ) external view returns (bool isValid, CertificateStatus status) {
+        CertificateRecord storage record = certificates[certUid];
+
+        // Step 1: Existence check
+        if (!record.exists) {
+            return (false, CertificateStatus.ACTIVE);
+        }
+
+        // Step 2: Revocation check (priority — revoked certs are never valid)
+        if (record.status == CertificateStatus.REVOKED) {
+            return (false, CertificateStatus.REVOKED);
+        }
+
+        // Step 3: Hash comparison
+        return (record.certificateHash == submittedHash, CertificateStatus.ACTIVE);
+    }
+
+    /// @notice Returns the complete on-chain record for a certificate UID
+    /// @dev View function — costs 0 ETH when called as eth_call.
+    ///      Returns a zero-value struct (exists=false) for non-existent UIDs
+    ///      rather than reverting, because queries should return data, not errors.
+    /// @param certUid The certificate UID to look up
+    /// @return The full CertificateRecord struct (memory copy)
+    function getCertificateRecord(
+        string calldata certUid
+    ) external view returns (CertificateRecord memory) {
+        return certificates[certUid];
+    }
 
     /// @notice Checks whether a wallet address is an authorized certificate issuer
     /// @param wallet The address to check
