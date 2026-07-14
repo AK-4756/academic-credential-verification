@@ -99,6 +99,9 @@ contract CertificateRegistry {
     /// @dev Cannot authorize the current owner as an issuer
     error CannotAuthorizeOwner(address ownerAddress);
 
+    /// @dev Cannot transfer ownership to the current owner
+    error AlreadyOwner();
+
     // ═══════════════════════════════════════════════════════════════════════════
     //                                 EVENTS
     // ═══════════════════════════════════════════════════════════════════════════
@@ -242,5 +245,102 @@ contract CertificateRegistry {
     constructor() {
         owner = msg.sender;
         emit OwnershipTransferred(address(0), msg.sender, block.timestamp);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //                          ADMIN FUNCTIONS (onlyOwner)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// @notice Adds a university wallet to the authorized issuers whitelist
+    /// @dev CEI: checks → state change → event. Gas budget: ≤55,000.
+    ///      Cannot authorize the zero address, the owner, or an already-authorized issuer.
+    /// @param issuerAddress The university wallet address to authorize
+    function authorizeIssuer(address issuerAddress) external onlyOwner {
+        // Checks
+        if (issuerAddress == address(0)) {
+            revert CannotAuthorizeZeroAddress();
+        }
+        if (issuerAddress == owner) {
+            revert CannotAuthorizeOwner(owner);
+        }
+        if (authorizedIssuers[issuerAddress]) {
+            revert IssuerAlreadyAuthorized(issuerAddress);
+        }
+
+        // Effects
+        authorizedIssuers[issuerAddress] = true;
+
+        // Event
+        emit IssuerAuthorized(issuerAddress, msg.sender, block.timestamp);
+    }
+
+    /// @notice Removes a university wallet from the authorized issuers whitelist
+    /// @dev CEI: checks → state change → event. Gas budget: ≤35,000.
+    ///      Deauthorization is immediate — the next storeCertificate() call from
+    ///      this wallet will revert. Previously stored certificates remain valid.
+    /// @param issuerAddress The university wallet address to deauthorize
+    /// @param reason Human-readable reason for deauthorization (stored in event only, not storage)
+    function deauthorizeIssuer(address issuerAddress, string calldata reason) external onlyOwner {
+        // Checks
+        if (!authorizedIssuers[issuerAddress]) {
+            revert IssuerNotAuthorized(issuerAddress);
+        }
+
+        // Effects
+        authorizedIssuers[issuerAddress] = false;
+
+        // Event
+        emit IssuerDeauthorized(issuerAddress, msg.sender, block.timestamp, reason);
+    }
+
+    /// @notice Transfers contract ownership to a new address
+    /// @dev CEI: checks → state change → event. The new owner immediately gains
+    ///      all admin capabilities; the old owner loses them in the same transaction.
+    ///      Cannot transfer to the zero address.
+    /// @param newOwner The address of the new contract owner
+    function transferOwnership(address newOwner) external onlyOwner {
+        // Checks
+        if (newOwner == address(0)) {
+            revert CannotTransferToZeroAddress();
+        }
+        if (newOwner == owner) {
+            revert AlreadyOwner();
+        }
+
+        // Effects
+        address previousOwner = owner;
+        owner = newOwner;
+
+        // Event
+        emit OwnershipTransferred(previousOwner, newOwner, block.timestamp);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //                          VIEW FUNCTIONS (public, no gas)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// @notice Checks whether a wallet address is an authorized certificate issuer
+    /// @param wallet The address to check
+    /// @return True if the wallet is authorized to issue certificates
+    function isAuthorizedIssuer(address wallet) external view returns (bool) {
+        return authorizedIssuers[wallet];
+    }
+
+    /// @notice Returns the current contract owner address
+    /// @return The owner address
+    function getOwner() external view returns (address) {
+        return owner;
+    }
+
+    /// @notice Returns the total number of certificates stored on-chain
+    /// @return The monotonic certificate counter value
+    function getCertificateCount() external view returns (uint256) {
+        return totalCertificates;
+    }
+
+    /// @notice Returns the total number of certificates that have been revoked
+    /// @return The monotonic revocation counter value
+    function getRevocationCount() external view returns (uint256) {
+        return totalRevocations;
     }
 }
