@@ -356,6 +356,36 @@ contract CertificateRegistry {
         );
     }
 
+    /// @notice Permanently revokes a certificate — terminal state, cannot be undone
+    /// @dev CEI: modifier chain → state updates → counter → event.
+    ///      Gas budget: ≤65,000. Only the original issuing university can revoke.
+    ///      certificateHash and issuingUniversity are NOT modified — they remain
+    ///      as permanent evidence of what was issued.
+    ///      Modifier order is deliberate (cheapest check first):
+    ///      onlyAuthorizedIssuer → certificateMustExist → certificateMustBeActive → onlyOriginalIssuer
+    /// @param certUid The certificate UID to revoke
+    function revokeCertificate(
+        string calldata certUid
+    ) external
+        onlyAuthorizedIssuer
+        certificateMustExist(certUid)
+        certificateMustBeActive(certUid)
+        onlyOriginalIssuer(certUid)
+    {
+        // Effects — update status and timestamp
+        certificates[certUid].status = CertificateStatus.REVOKED;
+        certificates[certUid].revokedAt = block.timestamp;
+        totalRevocations += 1;
+
+        // Event
+        emit CertificateRevoked(
+            certUid,
+            msg.sender,
+            block.timestamp,
+            totalRevocations
+        );
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     //                          VIEW FUNCTIONS (public, no gas)
     // ═══════════════════════════════════════════════════════════════════════════
