@@ -50,9 +50,11 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
 
     # --- Application ---
+    APP_NAME: str = "Academic Credential Verification Platform"
     SHOW_DOCS: bool = True
     DEBUG: bool = True
     LOG_LEVEL: str = "DEBUG"
+    VERIFICATION_BASE_URL: str = "http://localhost:8000/api/v1/verify/qr"
 
 
 # Singleton settings instance — import this throughout the application

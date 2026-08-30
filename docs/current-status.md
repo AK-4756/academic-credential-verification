@@ -35,7 +35,7 @@ Sprint 1 - Foundation Setup
 
 ## Current Task
 
-Sprint 1 Complete — Awaiting approval for Sprint 2
+Sprint 4, Phase 2 Complete — Database Layer (10 ORM models, async engine, session dependency). Awaiting approval for Phase 3.
 
 ## Current Blockchain Folder State
 
@@ -103,12 +103,19 @@ Roles:
 
 ## Next Deliverable
 
-Sprint 2 - Smart Contract Development:
+Sprint 4, Phase 3 - Pydantic Schemas:
 
-- CertificateRegistry Contract
-- Access Control
-- Certificate Issuance
-- Verification Logic
-- Contract Testing
+- Request/Response schemas for all endpoints
+- Validation rules matching database constraints
 
 Awaiting user approval before proceeding.
+
+## Backend Folder State (Sprint 4)
+
+backend/
+
+- core/ (config, constants, exceptions, security, logging)
+- database/ (base.py, connection.py, __init__.py)
+- models/ (10 ORM models + __init__.py)
+- middleware/ (request_id, logging)
+- main.py (full middleware stack + exception handlers)
