@@ -53,11 +53,11 @@ class BlockchainTransaction(UUIDMixin, TimestampMixin, Base):
     )
 
     # ─── Transaction Identity ─────────────────────────────────
-    tx_hash: Mapped[str] = mapped_column(
+    tx_hash: Mapped[Optional[str]] = mapped_column(
         String(66),
-        nullable=False,
+        nullable=True,
         unique=True,
-        comment="Ethereum TX hash (0x + 64 hex chars)",
+        comment="Ethereum TX hash (0x + 64 hex chars). NULL while status=PENDING.",
     )
     tx_type: Mapped[TransactionType] = mapped_column(
         ENUM(TransactionType, name="transaction_type", create_type=False),

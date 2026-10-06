@@ -29,6 +29,7 @@ from core.constants import (
 )
 from core.exceptions import InvalidFileTypeError, FileTooLargeError, ServiceError
 from dependencies import get_current_active_user, get_db, limiter, require_university_admin
+from dependencies.services import get_blockchain_service
 from models.user_model import User
 from repositories import CertificateRepository
 from schemas import (
@@ -125,6 +126,7 @@ async def confirm_hash(
     body: ConfirmHashRequest,
     current_user: User = Depends(require_university_admin),
     db: AsyncSession = Depends(get_db),
+    blockchain_service=Depends(get_blockchain_service),
 ):
     """
     Phase 2: Confirm blockchain storage after MetaMask TX.
@@ -134,6 +136,7 @@ async def confirm_hash(
         blockchain_tx_hash=body.blockchain_tx_hash,
         current_user=current_user,
         db=db,
+        blockchain_service=blockchain_service,
     )
 
     return SuccessResponse(data=result, message="Certificate confirmed on blockchain")
@@ -212,6 +215,7 @@ async def revoke_certificate(
     body: RevokeRequest,
     current_user: User = Depends(require_university_admin),
     db: AsyncSession = Depends(get_db),
+    blockchain_service=Depends(get_blockchain_service),
 ):
     """Phase 1: Initiate certificate revocation."""
     result = await certificate_revocation_service.initiate_revocation(
@@ -219,6 +223,7 @@ async def revoke_certificate(
         reason=body.reason,
         current_user=current_user,
         db=db,
+        blockchain_service=blockchain_service,
     )
 
     return SuccessResponse(
@@ -236,6 +241,7 @@ async def confirm_revocation(
     body: ConfirmRevocationRequest,
     current_user: User = Depends(require_university_admin),
     db: AsyncSession = Depends(get_db),
+    blockchain_service=Depends(get_blockchain_service),
 ):
     """Phase 2: Confirm revocation after MetaMask TX."""
     result = await certificate_revocation_service.confirm_revocation(
@@ -243,6 +249,7 @@ async def confirm_revocation(
         blockchain_tx_hash=body.blockchain_tx_hash,
         current_user=current_user,
         db=db,
+        blockchain_service=blockchain_service,
     )
 
     return SuccessResponse(

@@ -1,20 +1,174 @@
 // blockchain/scripts/deploy.js
-// Sprint 2 implementation
-// Purpose: Deploy CertificateRegistry to target network
-// Post-deployment: Write deployment record + distribute ABI
+// Deploy CertificateRegistry to the target network.
 //
 // Workflow:
-// 1. Compile contract (if not already compiled)
-// 2. Deploy CertificateRegistry
-// 3. Wait for confirmations (6 on Sepolia, 1 on local)
-// 4. Write deployment record to deployments/{network}/CertificateRegistry.json
-// 5. Copy ABI to backend/blockchain/abi/CertificateRegistry.json
-// 6. Generate frontend/blockchain/contractABI.js
-// 7. Log all relevant information
+//   1. Deploy CertificateRegistry
+//   2. Wait for deployment confirmation
+//   3. Write deployment record to deployments/{network}/CertificateRegistry.json
+//   4. Copy full Hardhat artifact to backend/blockchain/abi/CertificateRegistry.json
+//   5. Generate frontend/blockchain/contractABI.js  (ES-module export)
+//   6. Generate frontend/blockchain/contractAddress.js  (chain-ID map)
+//   7. Print summary
 //
 // Usage:
-//   npm run deploy:local       (in-process Hardhat Network)
-//   npm run deploy:localhost   (running node via npm run node)
-//   npm run deploy:sepolia     (Sepolia testnet — requires .env credentials)
-//
-// Implementation: Sprint 2
+//   npm run deploy:local      -- in-process Hardhat network  (no node needed)
+//   npm run deploy:localhost  -- running node via: npm run node
+//   npm run deploy:sepolia    -- Sepolia testnet (requires .env credentials)
+
+const { ethers, network } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
+
+const {
+  ABI_SOURCE,
+  BACKEND_ABI_DEST,
+  FRONTEND_ABI_DEST,
+  FRONTEND_ADDRESS_DEST,
+  DEPLOYMENTS_DIR,
+} = require("./abi-config");
+
+const { CHAIN_IDS, FRONTEND_ADDRESS_TEMPLATE } = require("./address-config");
+
+// ---------------------------------------------------------------------------
+// Network → deployment subfolder mapping
+// ---------------------------------------------------------------------------
+const NETWORK_FOLDER = {
+  hardhat: "hardhat-local",
+  localhost: "hardhat-local",
+  sepolia: "sepolia",
+};
+
+async function main() {
+  const networkName = network.name;
+  const chainId = (await ethers.provider.getNetwork()).chainId;
+
+  console.log("=".repeat(60));
+  console.log("  CertificateRegistry Deployment");
+  console.log("=".repeat(60));
+  console.log(`  Network  : ${networkName}`);
+  console.log(`  Chain ID : ${chainId}`);
+  console.log("");
+
+  // ── 1. Deploy ────────────────────────────────────────────────────────────
+  console.log("[1/6] Deploying CertificateRegistry...");
+
+  const [deployer] = await ethers.getSigners();
+  console.log(`      Deployer : ${deployer.address}`);
+
+  const deployerBalance = await ethers.provider.getBalance(deployer.address);
+  console.log(`      Balance  : ${ethers.formatEther(deployerBalance)} ETH`);
+
+  const ContractFactory = await ethers.getContractFactory("CertificateRegistry");
+  const contract = await ContractFactory.deploy();
+
+  // ── 2. Wait for confirmation ─────────────────────────────────────────────
+  console.log("[2/6] Waiting for transaction confirmation...");
+
+  await contract.waitForDeployment();
+
+  const contractAddress = await contract.getAddress();
+  const deployTx = contract.deploymentTransaction();
+  const txHash = deployTx ? deployTx.hash : "N/A";
+
+  console.log(`      Contract address : ${contractAddress}`);
+  console.log(`      Deploy TX hash   : ${txHash}`);
+
+  // Verify owner is set correctly
+  const owner = await contract.getOwner();
+  console.log(`      Owner address    : ${owner}`);
+  console.log(`      Deployer matches : ${owner.toLowerCase() === deployer.address.toLowerCase()}`);
+
+  // Quick sanity: certificateCount should be 0
+  const count = await contract.getCertificateCount();
+  console.log(`      Certificate count: ${count.toString()}`);
+
+  // ── 3. Write deployment record ───────────────────────────────────────────
+  console.log("[3/6] Writing deployment record...");
+
+  const folderKey = NETWORK_FOLDER[networkName] || networkName;
+  const deploymentDir = path.join(DEPLOYMENTS_DIR, folderKey);
+  fs.mkdirSync(deploymentDir, { recursive: true });
+
+  const deploymentRecord = {
+    contractName: "CertificateRegistry",
+    network: networkName,
+    chainId: Number(chainId),
+    address: contractAddress,
+    deployerAddress: deployer.address,
+    txHash: txHash,
+    deployedAt: new Date().toISOString(),
+    contractVersion: await contract.CONTRACT_VERSION(),
+  };
+
+  const recordPath = path.join(deploymentDir, "CertificateRegistry.json");
+  fs.writeFileSync(recordPath, JSON.stringify(deploymentRecord, null, 2));
+  console.log(`      Saved to: ${recordPath}`);
+
+  // ── 4. Copy ABI to backend ───────────────────────────────────────────────
+  console.log("[4/6] Copying ABI to backend...");
+
+  if (!fs.existsSync(ABI_SOURCE)) {
+    throw new Error(`ABI source not found: ${ABI_SOURCE}\nRun: npm run compile`);
+  }
+
+  const backendAbiDir = path.dirname(BACKEND_ABI_DEST);
+  fs.mkdirSync(backendAbiDir, { recursive: true });
+  fs.copyFileSync(ABI_SOURCE, BACKEND_ABI_DEST);
+  console.log(`      Backend ABI: ${BACKEND_ABI_DEST}`);
+
+  // ── 5. Generate frontend contractABI.js ──────────────────────────────────
+  console.log("[5/6] Generating frontend ABI module...");
+
+  const artifactJson = JSON.parse(fs.readFileSync(ABI_SOURCE, "utf8"));
+  const abiArray = artifactJson.abi;
+
+  const frontendAbiContent = `// frontend/blockchain/contractABI.js
+// AUTO-GENERATED by blockchain/scripts/deploy.js
+// Do not edit manually — run npm run deploy:<network> to update
+// Last updated: ${new Date().toISOString()}
+
+export const CONTRACT_ABI = ${JSON.stringify(abiArray, null, 2)};
+
+export default CONTRACT_ABI;
+`;
+
+  const frontendDir = path.dirname(FRONTEND_ABI_DEST);
+  fs.mkdirSync(frontendDir, { recursive: true });
+  fs.writeFileSync(FRONTEND_ABI_DEST, frontendAbiContent);
+  console.log(`      Frontend ABI: ${FRONTEND_ABI_DEST}`);
+
+  // ── 6. Generate frontend contractAddress.js ───────────────────────────────
+  console.log("[6/6] Generating frontend contract address module...");
+
+  // Determine which network key to populate
+  const isLocal = (networkName === "hardhat" || networkName === "localhost");
+  const networkKey = isLocal ? "hardhat-local" : networkName;
+
+  const addressFileContent = FRONTEND_ADDRESS_TEMPLATE(networkKey, contractAddress);
+  fs.writeFileSync(FRONTEND_ADDRESS_DEST, addressFileContent);
+  console.log(`      Frontend Address: ${FRONTEND_ADDRESS_DEST}`);
+
+  // ── Summary ──────────────────────────────────────────────────────────────
+  console.log("");
+  console.log("=".repeat(60));
+  console.log("  Deployment COMPLETE");
+  console.log("=".repeat(60));
+  console.log(`  Contract  : ${contractAddress}`);
+  console.log(`  Network   : ${networkName} (chain ${chainId})`);
+  console.log(`  TX Hash   : ${txHash}`);
+  console.log("");
+  console.log("  NEXT STEPS:");
+  console.log("  1. Set in backend/.env.development:");
+  console.log(`     CONTRACT_ADDRESS=${contractAddress}`);
+  console.log("");
+  console.log("  2. Authorize a university issuer wallet:");
+  console.log("     ISSUER_ADDRESS=0x<wallet> npm run authorize:local");
+  console.log("=".repeat(60));
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("\n[DEPLOY FAILED]", err.message || err);
+    process.exit(1);
+  });

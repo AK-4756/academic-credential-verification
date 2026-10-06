@@ -14,6 +14,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     Date,
+    DateTime,
     ForeignKey,
     Index,
     Integer,
@@ -163,7 +164,7 @@ class Certificate(UUIDMixin, TimestampMixin, Base):
         comment="Admin who revoked this certificate",
     )
     revoked_at: Mapped[Optional[datetime]] = mapped_column(
-        nullable=True, comment="Revocation timestamp"
+        DateTime(timezone=True), nullable=True, comment="Revocation timestamp"
     )
 
     # ─── Relationships ────────────────────────────────────────

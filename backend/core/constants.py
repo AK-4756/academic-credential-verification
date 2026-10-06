@@ -125,6 +125,7 @@ class TransactionStatus(str, enum.Enum):
     """Blockchain TX status — matches PostgreSQL transaction_status ENUM."""
 
     PENDING = "PENDING"
+    SUBMITTED = "SUBMITTED"
     CONFIRMED = "CONFIRMED"
     FAILED = "FAILED"
     REPLACED = "REPLACED"

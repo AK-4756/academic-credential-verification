@@ -1991,6 +1991,57 @@ RISKS THIS SPRINT:
 └── File storage path: must work on both macOS (/ separators) and Linux
 ```
 
+### Implementation Progress Notes (Updated 2026-09-10)
+
+> These notes document actual implementation progress relative to the
+> original sprint plans above. The original deliverable lists are
+> preserved unchanged as the historical planning record.
+
+**Sprint 4 Implementation Status:**
+
+The implementation was organized into ten completed phases during Sprint 4:
+
+| Phase | Scope | Verification |
+|-------|-------|-------------|
+| 1 | Core Infrastructure (config, constants, exceptions, security, logging, middleware, main.py) | App boot + /health verified |
+| 2 | Database Layer (async engine, session factory, 10 ORM models) | Phase 1 regression passed |
+| 3 | Dependencies + Middleware (auth dependencies, rate limiting) | Phase 1-2 regression passed |
+| 4 | Repository Layer (10 repositories) | 140/140 verification checks |
+| 5 | Pydantic Schemas (all request/response schemas) | 208/208 verification checks |
+| 6 | Service Layer (11 services, including Sprint 5 D1/D2/D3/D6) | 213/215 verification checks (2 false positives) |
+| 7 | API Routers (8 routers, including Sprint 5 D4/D5/D7) | 252/252 verification checks |
+| 8 | Blockchain Integration Service (blockchain_service.py + web3_client.py) | 166/166 verification checks |
+| 9 | Service-Layer Blockchain Integration (issuance, revocation, verification) | 156/156 verification checks |
+| 10 | Alembic Database Migrations (13 migrations + seed script) | Full DB validation: 10 tables, 6 ENUMs, 51 indexes, 25 triggers, 67 CHECKs; seed data 3/3; route regression 32/32 |
+
+- D1-D9 (implementation deliverables): All COMPLETE.
+- D10 (unit tests for hash_service): OUTSTANDING — formal pytest suite not yet implemented.
+- D11 (unit tests for blockchain_service): OUTSTANDING — formal pytest suite not yet implemented.
+- D12 (integration tests: blockchain vs Hardhat): OUTSTANDING — formal pytest suite not yet implemented.
+
+**Sprint 5 Implementation Status:**
+
+- D1-D7 (services and routers): All COMPLETE — implemented early during Sprint 4 Phases 6, 7, and 9.
+- D8 (integration tests: complete issuance flow): OUTSTANDING — formal pytest suite not yet implemented.
+- D9 (manual Postman test): Manual Postman execution is not performed by the AI agent. Equivalent automated API/integration coverage must be implemented. The user may optionally perform the manual Postman walkthrough.
+
+**Verification vs. Formal Testing:**
+
+Each Sprint 4 phase was validated using phase-specific verification scripts
+(structural checks, import verification, route registration, database
+validation, immutability trigger tests, and cross-phase regression). These
+verification scripts confirmed that the specified implementation checks
+passed, but they are NOT a substitute for the formal pytest unit,
+integration, API, and security test suite specified in backend.md
+Section 31.
+
+**Current Priority:**
+
+The formal pytest test suite (conftest.py, unit/, integration/, api/,
+security/) has not yet been implemented. The backend/tests/ directory
+does not contain pytest test files. This is the next priority before
+proceeding to Sprint 6 or frontend work.
+
 ## Sprint 5: Backend Certificate Services
 
 ```

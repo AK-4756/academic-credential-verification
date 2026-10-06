@@ -211,12 +211,14 @@ class BlockchainService:
 
         result = self._execute_with_retry(_call)
 
-        # The contract returns a struct as a tuple.
-        # Expected order from CertificateRegistry.sol:
-        #   certificateHash (bytes32), issuingUniversity (address),
-        #   issuedAt (uint256), revokedAt (uint256),
-        #   status (uint8), exists (bool)
-        exists = result[5]
+        # The contract returns a struct as a tuple in Solidity declaration order:
+        #   [0] certificateHash    (bytes32)
+        #   [1] issuingUniversity  (address)
+        #   [2] status             (uint8 / CertificateStatus enum)
+        #   [3] exists             (bool)
+        #   [4] issuedAt           (uint256 timestamp)
+        #   [5] revokedAt          (uint256 timestamp, 0 if not revoked)
+        exists = result[3]
         if not exists:
             return None
 
@@ -224,17 +226,17 @@ class BlockchainService:
         cert_hash_hex = Web3.to_hex(result[0])[2:]
 
         # Convert timestamps
-        issued_at = datetime.fromtimestamp(result[2], tz=timezone.utc)
+        issued_at = datetime.fromtimestamp(result[4], tz=timezone.utc)
         revoked_at = (
-            datetime.fromtimestamp(result[3], tz=timezone.utc)
-            if result[3] > 0
+            datetime.fromtimestamp(result[5], tz=timezone.utc)
+            if result[5] > 0
             else None
         )
 
         # Checksum the university address
         issuing_university = Web3.to_checksum_address(result[1])
 
-        status_str = _CHAIN_STATUS_MAP.get(result[4], f"UNKNOWN({result[4]})")
+        status_str = _CHAIN_STATUS_MAP.get(result[2], f"UNKNOWN({result[2]})")
 
         return ChainCertificateRecord(
             certificate_hash=cert_hash_hex,

@@ -27,6 +27,7 @@ from dependencies.rbac import (
     require_super_admin,
     require_university_admin,
 )
+from dependencies.services import get_blockchain_service
 
 __all__ = [
     # Database
@@ -43,4 +44,7 @@ __all__ = [
     # Rate Limiting
     "limiter",
     "rate_limit_exceeded_handler",
+    # Services
+    "get_blockchain_service",
 ]
+

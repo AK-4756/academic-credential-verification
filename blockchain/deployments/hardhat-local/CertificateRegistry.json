@@ -1,0 +1,10 @@
+{
+  "contractName": "CertificateRegistry",
+  "network": "localhost",
+  "chainId": 31337,
+  "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "deployerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "txHash": "0x154ec4fe2ea6db2d46190b548dbdd3536cd2a0ac003807a7f09aac621b3d2895",
+  "deployedAt": "2026-10-03T09:52:30.224Z",
+  "contractVersion": "1.0.0"
+}

@@ -168,7 +168,22 @@ async def authenticate_user(
     Raises:
         InvalidCredentialsError: Wrong email or password (generic message).
         AccountLockedError: Account temporarily locked.
+
+    Transaction design:
+        Two sequential transactions are used deliberately so that failed-
+        login-attempt tracking is committed to the database BEFORE the
+        InvalidCredentialsError is raised.  A single transaction would roll
+        back the increment when the exception propagates out of the
+        `async with db.begin():` block, making the lockout feature non-
+        functional.  Block 1 commits the failure record; Block 2 commits
+        the success data.  The exception is raised between the two blocks.
     """
+    # ── Block 1: credential check + failure persistence ──────────────────────
+    # Exits BEFORE raising so that the transaction commits the increment/lock.
+    # The `_password_ok` flag carries the result out of the block.
+    user = None
+    _password_ok = True
+
     async with db.begin():
         # 1. Find user
         user = await UserRepository.get_by_email(db, email)
@@ -181,12 +196,20 @@ async def authenticate_user(
 
         # 3. Verify password
         if not verify_password(password, user.password_hash):
+            _password_ok = False
             attempts = await UserRepository.increment_failed_attempts(db, user.id)
             if attempts >= MAX_FAILED_LOGIN_ATTEMPTS:
                 lock_until = datetime.now(timezone.utc) + timedelta(minutes=10)
                 await UserRepository.set_account_lock(db, user.id, lock_until)
-            raise InvalidCredentialsError()
+        # Block exits here WITHOUT raising → transaction commits,
+        # persisting the incremented counter and/or locked_until.
 
+    # Raise AFTER Block 1 has committed so the failure record is durable.
+    if not _password_ok:
+        raise InvalidCredentialsError()
+
+    # ── Block 2: success path ─────────────────────────────────────────────────
+    async with db.begin():
         # 4. Check account is active
         if not user.is_active:
             raise InvalidCredentialsError()
@@ -232,6 +255,7 @@ async def authenticate_user(
             "university_id": user.university_id,
         },
     }
+
 
 
 # ─── Token Refresh ───────────────────────────────────────────────────────────

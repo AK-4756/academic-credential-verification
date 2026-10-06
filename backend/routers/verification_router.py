@@ -24,6 +24,7 @@ from core.constants import (
 )
 from core.exceptions import FileTooLargeError, InvalidFileTypeError, ServiceError
 from dependencies import get_db, limiter
+from dependencies.services import get_blockchain_service
 from dependencies.rbac import require_role
 from models.user_model import User
 from schemas import (
@@ -49,11 +50,12 @@ async def verify_by_upload(
     certificate_uid: str | None = Query(default=None),
     current_user: User = Depends(_require_employer),
     db: AsyncSession = Depends(get_db),
+    blockchain_service=Depends(get_blockchain_service),
 ):
     """
     Verify a certificate by uploading the PDF file.
 
-    Computes SHA-256 hash and looks up certificate in database.
+    Computes SHA-256 hash and verifies against blockchain.
     """
     # Validate file type
     if file.content_type not in {"application/pdf"}:
@@ -76,6 +78,7 @@ async def verify_by_upload(
         request_ip=request.client.host if request.client else None,
         user_agent=request.headers.get("user-agent"),
         db=db,
+        blockchain_service=blockchain_service,
     )
 
     return SuccessResponse(data=result)
@@ -90,6 +93,7 @@ async def verify_by_qr(
     request: Request,
     token: str,
     db: AsyncSession = Depends(get_db),
+    blockchain_service=Depends(get_blockchain_service),
 ):
     """
     Verify a certificate via QR token (public, no auth required).
@@ -101,6 +105,7 @@ async def verify_by_qr(
         request_ip=request.client.host if request.client else None,
         user_agent=request.headers.get("user-agent"),
         db=db,
+        blockchain_service=blockchain_service,
     )
 
     return PublicVerificationResult(
